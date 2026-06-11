@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: iching
+      POSTGRES_PASSWORD: iching
+      POSTGRES_DB: iching
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://iching:iching@postgres:5432/iching
+      REDIS_URL: redis://redis:6379
+      CORS_ORIGIN: http://localhost:8080,http://127.0.0.1:8080
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  pgdata:

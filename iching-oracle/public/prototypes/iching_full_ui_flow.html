@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<title>UI 流程原型 · 易测</title>
+<!-- 模板片段：每个原型页 head 共用 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --color-text-primary: #2C2C2A;
+    --color-text-secondary: #5F5E5A;
+    --color-text-tertiary: #9C9A92;
+    --color-text-info: #378ADD;
+    --color-background-primary: #F1EFE8;
+    --color-background-secondary: #FAF9F5;
+    --color-border-tertiary: rgba(44, 44, 42, 0.08);
+    --color-border-secondary: rgba(44, 44, 42, 0.15);
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+  }
+  .proto-nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding: 10px 16px;
+    background: rgba(241, 239, 232, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border-tertiary);
+    font-size: 13px;
+  }
+  .proto-nav a { color: #534AB7; text-decoration: none; }
+  .proto-nav a:hover { text-decoration: underline; }
+  .proto-nav .sep { color: var(--color-text-tertiary); }
+  .proto-wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; }
+</style>
+
+</head>
+<body>
+<nav class="proto-nav">
+  <a href="index.html">← 原型目录</a>
+  <span class="sep">·</span>
+  <a href="/">主应用</a>
+  <span class="sep">·</span>
+  <strong>UI 流程原型 · 易测</strong>
+</nav>
+<div class="proto-wrap">
+
+<style>
+  * { box-sizing: border-box; }
+  .flow-wrap { padding: 16px 0; }
+  .page-label {
+    font-size: 11px; letter-spacing: 0.08em; color: var(--color-text-tertiary);
+    text-transform: uppercase; margin: 0 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-label::after { content: ''; flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+  .screen {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+  }
+  .nav-logo { font-size: 14px; font-weight: 500; color: var(--color-text-primary); letter-spacing: 0.04em; }
+  .nav-right { display: flex; gap: 16px; align-items: center; }
+  .nav-link { font-size: 12px; color: var(--color-text-secondary); }
+  .nav-btn {
+    font-size: 12px; padding: 4px 12px;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+  }
+  .screen-body { padding: 28px 24px; }
+
+  .hero { text-align: center; padding: 40px 20px 32px; }
+  .hero-tag {
+    display: inline-block; font-size: 11px; letter-spacing: 0.06em;
+    padding: 3px 10px; border-radius: 20px;
+    background: #FAEEDA; color: #633806;
+    border: 0.5px solid #EF9F27;
+    margin-bottom: 16px;
+  }
+  .hero h1 { font-size: 28px; font-weight: 500; margin: 0 0 10px; color: var(--color-text-primary); line-height: 1.3; }
+  .hero p { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 28px; }
+  .hero-cta {
+    display: inline-block; font-size: 14px; font-weight: 500;
+    padding: 10px 28px; border-radius: var(--border-radius-md);
+    background: #2C2C2A; color: #F1EFE8;
+    border: none; cursor: pointer;
+  }
+  .feature-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 32px; }
+  .feat-card {
+    padding: 14px 16px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+  }
+  .feat-icon { font-size: 18px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .feat-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .feat-desc { font-size: 12px; color: var(--color-text-tertiary); margin: 0; }
+
+  .step-bar { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+  .step-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .step-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--color-text-tertiary);
+  }
+  .step-dot.active { background: #2C2C2A; color: #F1EFE8; border-color: #2C2C2A; }
+  .step-dot.done { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+  .step-line { flex: 1; height: 0.5px; background: var(--color-border-tertiary); margin: 0 4px; }
+  .step-name { color: var(--color-text-tertiary); }
+  .step-name.active { color: var(--color-text-primary); font-weight: 500; }
+
+  .method-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .method-card {
+    padding: 16px; border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+  }
+  .method-card.selected { border: 1.5px solid #534AB7; background: #EEEDFE; }
+  .method-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .method-desc { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
+  .method-icon { font-size: 20px; margin-bottom: 8px; color: var(--color-text-secondary); }
+  .method-card.selected .method-icon { color: #534AB7; }
+
+  .ritual-area {
+    text-align: center; padding: 20px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    margin-bottom: 16px;
+  }
+  .coin-row { display: flex; justify-content: center; gap: 16px; margin: 16px 0; }
+  .coin {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #FAEEDA; border: 1.5px solid #EF9F27;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #633806; font-weight: 500;
+  }
+  .coin.flipped { background: #F1EFE8; border-color: #B4B2A9; color: #5F5E5A; }
+  .yao-preview { display: flex; flex-direction: column; gap: 6px; align-items: center; margin-top: 12px; }
+  .yao-line { display: flex; gap: 6px; }
+  .yao-seg { height: 5px; border-radius: 3px; background: #2C2C2A; }
+  .yao-seg.yang { width: 52px; }
+  .yao-seg.yin { width: 22px; }
+
+  .q-cats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
+  .q-cat {
+    padding: 10px 8px; text-align: center;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    font-size: 12px; color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+  }
+  .q-cat.active { border-color: #534AB7; background: #EEEDFE; color: #3C3489; font-weight: 500; }
+  .q-cat-icon { font-size: 16px; display: block; margin-bottom: 4px; }
+  .q-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .q-item {
+    padding: 10px 14px; font-size: 13px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+  }
+  .q-item.selected { border-color: #534AB7; color: #3C3489; background: #EEEDFE; }
+  .q-custom {
+    width: 100%; padding: 10px 14px; font-size: 13px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-primary);
+    color: var(--color-text-tertiary);
+  }
+
+  .result-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px;
+  }
+  .gua-display { display: flex; gap: 20px; align-items: center; }
+  .gua-block { text-align: center; }
+  .gua-char-big { font-size: 36px; line-height: 1; color: var(--color-text-primary); }
+  .gua-name { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+  .gua-arrow { font-size: 18px; color: var(--color-text-tertiary); align-self: center; }
+  .result-meta { font-size: 12px; color: var(--color-text-tertiary); }
+
+  .result-sections { display: flex; flex-direction: column; gap: 12px; }
+  .result-sec {
+    padding: 14px 16px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+  }
+  .result-sec-title { font-size: 12px; color: var(--color-text-tertiary); margin: 0 0 6px; letter-spacing: 0.04em; }
+  .result-sec-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; margin: 0; }
+  .result-verdict {
+    padding: 16px; border-radius: var(--border-radius-md);
+    background: #2C2C2A; color: #F1EFE8;
+    font-size: 14px; font-weight: 500; text-align: center;
+    margin-top: 4px; line-height: 1.6;
+  }
+  .result-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .act-btn {
+    flex: 1; padding: 9px; font-size: 13px; text-align: center;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+  }
+  .act-btn.primary { background: #2C2C2A; color: #F1EFE8; border-color: #2C2C2A; }
+
+  .hist-list { display: flex; flex-direction: column; gap: 8px; }
+  .hist-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+  }
+  .hist-char { font-size: 24px; color: var(--color-text-primary); min-width: 28px; }
+  .hist-info { flex: 1; }
+  .hist-q { font-size: 13px; color: var(--color-text-primary); margin: 0 0 2px; }
+  .hist-meta { font-size: 11px; color: var(--color-text-tertiary); }
+  .hist-arrow { font-size: 14px; color: var(--color-text-tertiary); }
+  .cat-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: #EEEDFE; color: #3C3489;
+    border: 0.5px solid #AFA9EC;
+  }
+  .cat-badge.coral { background: #FAECE7; color: #712B13; border-color: #F0997B; }
+  .cat-badge.teal { background: #E1F5EE; color: #085041; border-color: #5DCAA5; }
+  .cat-badge.amber { background: #FAEEDA; color: #633806; border-color: #EF9F27; }
+
+  .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #EEEDFE; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 500; color: #3C3489;
+  }
+  .profile-name { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .profile-sub { font-size: 12px; color: var(--color-text-tertiary); }
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+  .stat-card {
+    padding: 12px; text-align: center;
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+  }
+  .stat-num { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-lbl { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .pref-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 13px;
+  }
+  .pref-row:last-child { border-bottom: none; }
+  .pref-label { color: var(--color-text-secondary); }
+  .pref-val { color: var(--color-text-primary); font-weight: 500; }
+  .toggle {
+    width: 28px; height: 16px; border-radius: 8px; background: #1D9E75;
+    position: relative; display: inline-block;
+  }
+  .toggle::after {
+    content: ''; position: absolute; width: 12px; height: 12px;
+    border-radius: 50%; background: #fff;
+    top: 2px; right: 2px;
+  }
+  .toggle.off { background: var(--color-border-secondary); }
+  .toggle.off::after { left: 2px; right: auto; }
+</style>
+
+<div class="flow-wrap">
+
+  <div class="page-label">P1 · 首页</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right">
+        <span class="nav-link">历史</span>
+        <span class="nav-link">关于</span>
+        <span class="nav-btn">登录</span>
+      </div>
+    </div>
+    <div class="hero">
+      <div class="hero-tag">易经六爻测算</div>
+      <h1>静心，问一个<br>真正重要的问题</h1>
+      <p>四种起卦方式，结构化问题框架，玄学大师解读</p>
+      <div class="hero-cta">开始起卦</div>
+      <div class="feature-row">
+        <div class="feat-card">
+          <div class="feat-icon"><i class="ti ti-circle-dotted" aria-hidden="true"></i></div>
+          <div class="feat-title">多种起卦</div>
+          <p class="feat-desc">铜钱、蓍草、梅花、数字</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><i class="ti ti-messages" aria-hidden="true"></i></div>
+          <div class="feat-title">结构化解读</div>
+          <p class="feat-desc">事业、感情、决策、健康</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><i class="ti ti-history" aria-hidden="true"></i></div>
+          <div class="feat-title">卦象存档</div>
+          <p class="feat-desc">每一次问卜都有记录</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P2 · 选择起卦方式</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right"><span class="nav-link">退出</span></div>
+    </div>
+    <div class="screen-body">
+      <div class="step-bar">
+        <div class="step-item"><div class="step-dot active">1</div><span class="step-name active">起卦</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot">2</div><span class="step-name">问题</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot">3</div><span class="step-name">解读</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 16px">选择一种你觉得合适的起卦方式</p>
+      <div class="method-grid">
+        <div class="method-card selected">
+          <div class="method-icon"><i class="ti ti-coin" aria-hidden="true"></i></div>
+          <div class="method-title">铜钱摇卦</div>
+          <p class="method-desc">三枚铜钱各抛三次，最经典</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon"><i class="ti ti-plant" aria-hidden="true"></i></div>
+          <div class="method-title">蓍草数</div>
+          <p class="method-desc">正统繁琐，适合郑重求卦</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon"><i class="ti ti-flower" aria-hidden="true"></i></div>
+          <div class="method-title">梅花易数</div>
+          <p class="method-desc">取时间或随机数起卦</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon"><i class="ti ti-keyboard" aria-hidden="true"></i></div>
+          <div class="method-title">直接输入</div>
+          <p class="method-desc">已知三组数字，直接填写</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P3 · 铜钱仪式（起卦过程）</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right"><span class="nav-link" style="font-size:11px;color:var(--color-text-tertiary)">第 2 爻 / 共 6 爻</span></div>
+    </div>
+    <div class="screen-body">
+      <div class="step-bar">
+        <div class="step-item"><div class="step-dot done"><i class="ti ti-check" style="font-size:10px"></i></div><span class="step-name">起卦</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot">2</div><span class="step-name">问题</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot">3</div><span class="step-name">解读</span></div>
+      </div>
+      <div class="ritual-area">
+        <p style="font-size:12px;color:var(--color-text-tertiary);margin:0 0 4px">静心，默念你的问题</p>
+        <p style="font-size:14px;color:var(--color-text-primary);font-weight:500;margin:0 0 16px">摇动铜钱，点击投出</p>
+        <div class="coin-row">
+          <div class="coin">正</div>
+          <div class="coin flipped">反</div>
+          <div class="coin">正</div>
+        </div>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0">二正一反 → 少阳</p>
+        <div class="yao-preview" style="margin-top:16px">
+          <div class="yao-line"><div class="yao-seg yang"></div></div>
+          <div class="yao-line"><div class="yao-seg yin"></div><div class="yao-seg yin"></div></div>
+          <p style="font-size:11px;color:var(--color-text-tertiary);margin:6px 0 0">已得 2 爻</p>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="hero-cta" style="font-size:13px;padding:9px 24px">再摇一次</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P4 · 问题选择</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right"><span class="nav-link">退出</span></div>
+    </div>
+    <div class="screen-body">
+      <div class="step-bar">
+        <div class="step-item"><div class="step-dot done"><i class="ti ti-check" style="font-size:10px"></i></div><span class="step-name">起卦</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot active">2</div><span class="step-name active">问题</span></div>
+        <div class="step-line"></div>
+        <div class="step-item"><div class="step-dot">3</div><span class="step-name">解读</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 14px">你想问的是哪方面的事？</p>
+      <div class="q-cats">
+        <div class="q-cat active">
+          <i class="ti ti-briefcase q-cat-icon" aria-hidden="true"></i>事业
+        </div>
+        <div class="q-cat">
+          <i class="ti ti-heart q-cat-icon" aria-hidden="true"></i>感情
+        </div>
+        <div class="q-cat">
+          <i class="ti ti-scale q-cat-icon" aria-hidden="true"></i>决策
+        </div>
+        <div class="q-cat">
+          <i class="ti ti-leaf q-cat-icon" aria-hidden="true"></i>健康
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--color-text-tertiary);margin:0 0 10px">选一个接近你情况的问题，或自己描述</p>
+      <div class="q-list">
+        <div class="q-item selected"><i class="ti ti-check" style="font-size:12px;margin-right:6px;color:#534AB7"></i>这份工作该不该辞</div>
+        <div class="q-item">创业时机是否成熟</div>
+        <div class="q-item">这个合作对象可信吗</div>
+        <div class="q-item">升职机会能否把握住</div>
+      </div>
+      <input class="q-custom" type="text" placeholder="或者用自己的话描述...">
+      <div style="margin-top:16px;text-align:right">
+        <div class="hero-cta" style="font-size:13px;padding:9px 24px;display:inline-block">开始解读</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P5 · 解读结果</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right">
+        <span class="nav-link"><i class="ti ti-share" style="font-size:14px"></i></span>
+        <span class="nav-link"><i class="ti ti-bookmark" style="font-size:14px"></i></span>
+      </div>
+    </div>
+    <div class="screen-body">
+      <div class="result-header">
+        <div class="gua-display">
+          <div class="gua-block">
+            <div class="gua-char-big">䷱</div>
+            <div class="gua-name">鼎卦</div>
+          </div>
+          <div class="gua-arrow">→</div>
+          <div class="gua-block">
+            <div class="gua-char-big">䷀</div>
+            <div class="gua-name">乾卦（变）</div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <div style="margin-bottom:4px">事业 · 第三爻动</div>
+          <div>这份工作该不该辞</div>
+        </div>
+      </div>
+      <div class="result-sections">
+        <div class="result-sec">
+          <p class="result-sec-title">卦象气场</p>
+          <p class="result-sec-body">鼎者，革故鼎新之象。火在木上，烹饪熟成，是积累已到临界、等待转化的时刻。</p>
+        </div>
+        <div class="result-sec">
+          <p class="result-sec-title">时机判断</p>
+          <p class="result-sec-body">第三爻为变爻，正处鼎耳革变之位。此刻不是坚守，是等待一个更清晰的方向确认后再动。</p>
+        </div>
+        <div class="result-sec">
+          <p class="result-sec-title">隐患与阻力</p>
+          <p class="result-sec-body">变卦为乾，纯阳刚健——方向是对的，但步子迈大了容易失稳。离开前需确认下一步落脚点。</p>
+        </div>
+        <div class="result-sec">
+          <p class="result-sec-title">具体建议</p>
+          <p class="result-sec-body">先谈好下家，再提离职。若无下家，再等一季度。莫因一时烦躁误了大局。</p>
+        </div>
+        <div class="result-verdict">
+          不宜仓促，时机将至，稳中求变。
+        </div>
+      </div>
+      <div class="result-actions">
+        <div class="act-btn"><i class="ti ti-rotate-clockwise" style="font-size:13px;margin-right:4px"></i>再问一卦</div>
+        <div class="act-btn"><i class="ti ti-message" style="font-size:13px;margin-right:4px"></i>深入追问</div>
+        <div class="act-btn primary"><i class="ti ti-bookmark" style="font-size:13px;margin-right:4px"></i>存入卦档</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P6 · 历史记录</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right"><span class="nav-link"><i class="ti ti-search" style="font-size:14px"></i></span></div>
+    </div>
+    <div class="screen-body">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 16px">你的卦象档案</p>
+      <div class="hist-list">
+        <div class="hist-item">
+          <div class="hist-char">䷱</div>
+          <div class="hist-info">
+            <p class="hist-q">这份工作该不该辞</p>
+            <p class="hist-meta">鼎卦 → 乾卦 · 今天</p>
+          </div>
+          <span class="cat-badge">事业</span>
+          <span class="hist-arrow"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+        </div>
+        <div class="hist-item">
+          <div class="hist-char">䷂</div>
+          <div class="hist-info">
+            <p class="hist-q">他对我有意吗</p>
+            <p class="hist-meta">屯卦 · 3天前</p>
+          </div>
+          <span class="cat-badge coral">感情</span>
+          <span class="hist-arrow"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+        </div>
+        <div class="hist-item">
+          <div class="hist-char">䷊</div>
+          <div class="hist-info">
+            <p class="hist-q">要不要移居外地</p>
+            <p class="hist-meta">泰卦 · 上周</p>
+          </div>
+          <span class="cat-badge teal">决策</span>
+          <span class="hist-arrow"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+        </div>
+        <div class="hist-item">
+          <div class="hist-char">䷿</div>
+          <div class="hist-info">
+            <p class="hist-q">近期身体状态如何</p>
+            <p class="hist-meta">未济卦 · 2周前</p>
+          </div>
+          <span class="cat-badge amber">健康</span>
+          <span class="hist-arrow"><i class="ti ti-chevron-right" style="font-size:14px"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-label">P7 · 用户中心</div>
+  <div class="screen">
+    <div class="nav">
+      <span class="nav-logo">易 · 测</span>
+      <div class="nav-right"><span class="nav-link">退出登录</span></div>
+    </div>
+    <div class="screen-body">
+      <div class="profile-header">
+        <div class="avatar">木</div>
+        <div>
+          <div class="profile-name">木子同学</div>
+          <div class="profile-sub">普通会员 · 加入于 2025年3月</div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-num">23</div><div class="stat-lbl">累计测卦</div></div>
+        <div class="stat-card"><div class="stat-num">8</div><div class="stat-lbl">本月起卦</div></div>
+        <div class="stat-card"><div class="stat-num">4</div><div class="stat-lbl">存档卦象</div></div>
+      </div>
+      <div class="pref-row">
+        <span class="pref-label">默认起卦方式</span>
+        <span class="pref-val">铜钱摇卦</span>
+      </div>
+      <div class="pref-row">
+        <span class="pref-label">解读风格</span>
+        <span class="pref-val">玄学大师</span>
+      </div>
+      <div class="pref-row">
+        <span class="pref-label">仪式引导</span>
+        <span class="toggle"></span>
+      </div>
+      <div class="pref-row">
+        <span class="pref-label">历史公开</span>
+        <span class="toggle off"></span>
+      </div>
+      <div class="pref-row" style="border:none;margin-top:8px">
+        <span class="pref-label" style="color:var(--color-text-info)">升级会员</span>
+        <span class="pref-val" style="font-size:12px;color:var(--color-text-tertiary)"><i class="ti ti-chevron-right" style="font-size:13px"></i></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+</body>
+</html>

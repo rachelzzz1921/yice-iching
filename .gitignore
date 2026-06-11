@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.npm-cache/
+
+# Build outputs
+iching-oracle/dist/
+iching-oracle/dist-ssr/
+iching-oracle/.output/
+iching-oracle/.vinxi/
+iching-oracle/.tanstack/
+iching-oracle/.nitro/
+iching-oracle/.wrangler/
+
+# Secrets — never commit
+.env
+.env.local
+.env.production
+backend/.env
+iching-oracle/.env
+iching-oracle/.env.production
+deploy/.env.prod
+
+# Keep examples
+!.env.example
+!**/.env.example
+!deploy/.env.prod.example
+
+# Logs & OS
+*.log
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Docker volumes (local)
+pgdata/
+
+# Cursor / local assets (optional)
+.cursor/
+
+# 非易测代码（大赛材料等）
+中銀香港創新先驅大賽2026/

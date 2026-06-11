@@ -1,0 +1,8 @@
+{
+  "entries": [],
+  "_meta": {
+    "version": "2",
+    "description": "C4 · 一句话定性 opener，每卦每 tone 3 备选",
+    "tones": ["direct", "warning", "empathy", "poetic", "encourage"]
+  }
+}

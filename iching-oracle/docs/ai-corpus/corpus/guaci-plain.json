@@ -1,0 +1,22 @@
+{
+  "hexagrams": {},
+  "lines": {},
+  "_meta": {
+    "version": "1",
+    "description": "C1 · 卦辞/爻辞现代白话，每条 ≤40 字",
+    "example": {
+      "hexagrams": {
+        "遁": {
+          "guaciPlain": "宜退避不争，先保自身再图后动",
+          "xiangPlain": "远离小人纠缠，守界限而不恶声"
+        }
+      },
+      "lines": {
+        "遁-2": {
+          "textPlain": "被旧责拴住，先减负再谈跳槽",
+          "xiangPlain": "系遁：牵绊在身，不宜大事"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+# 轻量应用服务器单机部署：Postgres + Redis + 后端 + 前端 SSR
+# 对外只暴露 nginx 80 端口（见 deploy/nginx-single.conf）
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: iching
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-iching_prod_change_me}
+      POSTGRES_DB: iching
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iching -d iching"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./deploy/.env.prod
+    environment:
+      DATABASE_URL: postgresql://iching:${POSTGRES_PASSWORD:-iching_prod_change_me}@postgres:5432/iching
+      REDIS_URL: redis://redis:6379
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  frontend:
+    build:
+      context: ./iching-oracle
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./deploy/.env.prod
+    environment:
+      PORT: 3000
+      API_UPSTREAM: http://backend:3001
+      # ZHIPU_* 仅从 deploy/.env.prod 注入；勿用 ${ZHIPU_API_KEY:-}，否则 compose 会用空 shell 覆盖 env_file
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  pgdata:

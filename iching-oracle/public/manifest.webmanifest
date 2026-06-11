@@ -1,0 +1,26 @@
+{
+  "name": "易测 — 易经六爻在线问卜",
+  "short_name": "易测",
+  "description": "静心问事，起卦观象。结构化问事、四种起卦方式、大师解读。",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F5F2EA",
+  "theme_color": "#F5F2EA",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

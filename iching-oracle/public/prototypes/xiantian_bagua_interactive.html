@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<title>先天八卦交互</title>
+<!-- 模板片段：每个原型页 head 共用 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --color-text-primary: #2C2C2A;
+    --color-text-secondary: #5F5E5A;
+    --color-text-tertiary: #9C9A92;
+    --color-text-info: #378ADD;
+    --color-background-primary: #F1EFE8;
+    --color-background-secondary: #FAF9F5;
+    --color-border-tertiary: rgba(44, 44, 42, 0.08);
+    --color-border-secondary: rgba(44, 44, 42, 0.15);
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+  }
+  .proto-nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding: 10px 16px;
+    background: rgba(241, 239, 232, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border-tertiary);
+    font-size: 13px;
+  }
+  .proto-nav a { color: #534AB7; text-decoration: none; }
+  .proto-nav a:hover { text-decoration: underline; }
+  .proto-nav .sep { color: var(--color-text-tertiary); }
+  .proto-wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; }
+</style>
+
+</head>
+<body>
+<nav class="proto-nav">
+  <a href="index.html">← 原型目录</a>
+  <span class="sep">·</span>
+  <a href="/">主应用</a>
+  <span class="sep">·</span>
+  <strong>先天八卦交互</strong>
+</nav>
+<div class="proto-wrap">
+
+<style>
+  :root {
+    --yang: #3C3489;
+    --yin: #B4B2A9;
+    --active-bg: #EEEDFE;
+    --active-border: #534AB7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --yang: #AFA9EC;
+      --yin: #5F5E5A;
+      --active-bg: #26215C;
+      --active-border: #7F77DD;
+    }
+  }
+  #bagua-wrap { display: flex; gap: 24px; align-items: flex-start; padding: 16px 0; flex-wrap: wrap; }
+  #bagua-svg-area { flex: 0 0 auto; }
+  #bagua-info {
+    flex: 1; min-width: 200px;
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    background: var(--color-background-secondary);
+    min-height: 280px;
+  }
+  #bagua-info h3 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  #bagua-info .gua-char { font-size: 40px; line-height: 1; margin: 8px 0; color: var(--color-text-primary); }
+  #bagua-info .yao-row { display: flex; gap: 6px; margin: 10px 0; }
+  .yao {
+    width: 32px; height: 10px; border-radius: 2px;
+    background: var(--yang);
+    position: relative;
+  }
+  .yao.yin { background: var(--color-background-primary); border: 1px solid var(--yin); }
+  .yao.yin::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 6px;
+    background: var(--color-background-primary);
+    transform: translateX(-50%);
+  }
+  #bagua-info .meta { font-size: 12px; color: var(--color-text-secondary); margin: 6px 0 2px; }
+  #bagua-info .val { font-size: 14px; color: var(--color-text-primary); margin: 0 0 8px; }
+  #bagua-info .tag {
+    display: inline-block; font-size: 11px;
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--active-bg);
+    color: var(--active-border);
+    border: 1px solid var(--active-border);
+    margin: 2px 2px 2px 0;
+  }
+  #bagua-info .hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 16px; }
+  .gua-sector { cursor: pointer; transition: opacity 0.15s; }
+  .gua-sector:hover { opacity: 0.75; }
+  .gua-sector.active-sector { opacity: 1; }
+</style>
+
+<div id="bagua-wrap">
+  <div id="bagua-svg-area">
+    <svg width="300" height="300" viewBox="0 0 300 300" role="img">
+      <title>先天八卦方位图</title>
+      <desc>可交互的先天八卦，点击查看各卦详细信息</desc>
+      <circle cx="150" cy="150" r="148" fill="none" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>
+      <circle cx="150" cy="150" r="50" fill="none" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>
+      <g id="sectors"></g>
+      <g id="yao-lines"></g>
+      <g id="labels"></g>
+      <circle cx="150" cy="150" r="22" fill="var(--color-background-secondary)" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>
+      <text x="150" y="146" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)" font-family="var(--font-sans)">先天</text>
+      <text x="150" y="160" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)" font-family="var(--font-sans)">八卦</text>
+    </svg>
+  </div>
+  <div id="bagua-info">
+    <div class="hint">点击八卦方位查看详情，以及它在测算系统中的角色。</div>
+  </div>
+</div>
+
+<script>
+const BAGUA = [
+  {
+    id: 1, name: "乾", char: "☰", dir: "南", nature: "天",
+    yao: [1,1,1], num: 1, angle: 270,
+    wuxing: "金", symbol: "父",
+    sysRole: "下卦/上卦编号 1",
+    tags: ["刚健", "阳极", "创始"],
+    desc: "纯阳之卦，六爻皆阳。代表天、君、父，象征最强阳性能量。在系统中编号为 1，是64卦矩阵的行/列索引起点。"
+  },
+  {
+    id: 8, name: "坤", char: "☷", dir: "北", nature: "地",
+    yao: [0,0,0], num: 8, angle: 90,
+    wuxing: "土", symbol: "母",
+    sysRole: "下卦/上卦编号 2",
+    tags: ["柔顺", "阴极", "承载"],
+    desc: "纯阴之卦，六爻皆阴。代表地、民、母，象征最强阴性能量。与乾相对，系统编号 2。"
+  },
+  {
+    id: 4, name: "离", char: "☲", dir: "东", nature: "火",
+    yao: [1,0,1], num: 3, angle: 0,
+    wuxing: "火", symbol: "中女",
+    sysRole: "下卦/上卦编号 6",
+    tags: ["附丽", "文明", "光明"],
+    desc: "中爻为阴，上下皆阳。象征火、日、目。卦数6，在测算引擎中参与变爻阴阳转换逻辑。"
+  },
+  {
+    id: 6, name: "坎", char: "☵", dir: "西", nature: "水",
+    yao: [0,1,0], num: 6, angle: 180,
+    wuxing: "水", symbol: "中男",
+    sysRole: "下卦/上卦编号 5",
+    tags: ["险陷", "流动", "智慧"],
+    desc: "中爻为阳，上下皆阴。象征水、月、耳。与离相对，卦数5，系统处理涉水、流动类卦象。"
+  },
+  {
+    id: 3, name: "震", char: "☳", dir: "东北", nature: "雷",
+    yao: [0,0,1], num: 4, angle: 315,
+    wuxing: "木", symbol: "长男",
+    sysRole: "下卦/上卦编号 3",
+    tags: ["动", "震动", "奋发"],
+    desc: "下爻为阳，上两爻为阴。象征雷、龙、足。卦数3，代表起始动力，在六爻起卦中常为启动信号。"
+  },
+  {
+    id: 5, name: "巽", char: "☴", dir: "西南", nature: "风",
+    yao: [1,1,0], num: 5, angle: 135,
+    wuxing: "木", symbol: "长女",
+    sysRole: "下卦/上卦编号 4",
+    tags: ["入", "顺从", "渗透"],
+    desc: "下爻为阴，上两爻为阳。象征风、木、股。卦数4，与震相对。AI解读中常关联渗透性、影响力语境。"
+  },
+  {
+    id: 2, name: "艮", char: "☶", dir: "西北", nature: "山",
+    yao: [1,0,0], num: 7, angle: 225,
+    wuxing: "土", symbol: "少男",
+    sysRole: "下卦/上卦编号 7",
+    tags: ["止", "稳固", "边界"],
+    desc: "上爻为阳，下两爻为阴。象征山、手、背。卦数7，代表静止与边界，在历史记录模块中对应「定格」语义。"
+  },
+  {
+    id: 7, name: "兑", char: "☱", dir: "东南", nature: "泽",
+    yao: [0,1,1], num: 2, angle: 45,
+    wuxing: "金", symbol: "少女",
+    sysRole: "下卦/上卦编号 8",
+    tags: ["悦", "喜乐", "口舌"],
+    desc: "上爻为阴，下两爻为阳。象征泽、口、羊。卦数8，与艮相对。在AI解读服务中，兑卦语境偏向表达与沟通主题。"
+  }
+];
+
+const cx = 150, cy = 150, R = 148, r = 50;
+const svg = document.querySelector('#bagua-svg-area svg');
+const sectorsG = document.getElementById('sectors');
+const yaoG = document.getElementById('yao-lines');
+const labelsG = document.getElementById('labels');
+
+function polarToCart(angle, radius) {
+  const rad = (angle - 90) * Math.PI / 180;
+  return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)];
+}
+
+function drawYaoLines(gua, midAngle, rInner, rOuter) {
+  const yao = gua.yao;
+  const radii = [
+    [rInner + (rOuter-rInner)*0.08, rInner + (rOuter-rInner)*0.28],
+    [rInner + (rOuter-rInner)*0.40, rInner + (rOuter-rInner)*0.60],
+    [rInner + (rOuter-rInner)*0.72, rInner + (rOuter-rInner)*0.92],
+  ];
+  const spanAngle = 18;
+  yao.forEach((y, i) => {
+    const [r1, r2] = radii[i];
+    if (y === 1) {
+      const [x1,y1] = polarToCart(midAngle - spanAngle, (r1+r2)/2);
+      const [x2,y2] = polarToCart(midAngle + spanAngle, (r1+r2)/2);
+      const lineEl = document.createElementNS('http://www.w3.org/2000/svg','line');
+      lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1);
+      lineEl.setAttribute('x2', x2); lineEl.setAttribute('y2', y2);
+      lineEl.setAttribute('stroke', 'var(--yang)');
+      lineEl.setAttribute('stroke-width', '3');
+      lineEl.setAttribute('stroke-linecap', 'round');
+      yaoG.appendChild(lineEl);
+    } else {
+      const [xa,ya] = polarToCart(midAngle - spanAngle, (r1+r2)/2);
+      const [xb,yb] = polarToCart(midAngle - 4, (r1+r2)/2);
+      const [xc,yc] = polarToCart(midAngle + 4, (r1+r2)/2);
+      const [xd,yd] = polarToCart(midAngle + spanAngle, (r1+r2)/2);
+      [[xa,ya,xb,yb],[xc,yc,xd,yd]].forEach(([ax,ay,bx,by]) => {
+        const lineEl = document.createElementNS('http://www.w3.org/2000/svg','line');
+        lineEl.setAttribute('x1', ax); lineEl.setAttribute('y1', ay);
+        lineEl.setAttribute('x2', bx); lineEl.setAttribute('y2', by);
+        lineEl.setAttribute('stroke', 'var(--yin)');
+        lineEl.setAttribute('stroke-width', '3');
+        lineEl.setAttribute('stroke-linecap', 'round');
+        yaoG.appendChild(lineEl);
+      });
+    }
+  });
+}
+
+let activeId = null;
+
+BAGUA.forEach((gua, idx) => {
+  const startAngle = gua.angle - 22.5;
+  const endAngle = gua.angle + 22.5;
+  const [ox1,oy1] = polarToCart(startAngle, R);
+  const [ox2,oy2] = polarToCart(endAngle, R);
+  const [ix1,iy1] = polarToCart(startAngle, r);
+  const [ix2,iy2] = polarToCart(endAngle, r);
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  const d = `M ${ix1} ${iy1} L ${ox1} ${oy1} A ${R} ${R} 0 0 1 ${ox2} ${oy2} L ${ix2} ${iy2} A ${r} ${r} 0 0 0 ${ix1} ${iy1} Z`;
+  path.setAttribute('d', d);
+  path.setAttribute('fill', 'var(--color-background-secondary)');
+  path.setAttribute('stroke', 'var(--color-background-primary)');
+  path.setAttribute('stroke-width', '1.5');
+  path.setAttribute('class', 'gua-sector');
+  path.setAttribute('data-id', gua.id);
+  path.addEventListener('click', () => selectGua(gua, path));
+  sectorsG.appendChild(path);
+
+  drawYaoLines(gua, gua.angle, r, R);
+
+  const labelR = (R + r) / 2 + 14;
+  const [lx, ly] = polarToCart(gua.angle, labelR);
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x', lx); txt.setAttribute('y', ly);
+  txt.setAttribute('text-anchor', 'middle');
+  txt.setAttribute('dominant-baseline', 'central');
+  txt.setAttribute('font-size', '13');
+  txt.setAttribute('font-weight', '500');
+  txt.setAttribute('fill', 'var(--color-text-secondary)');
+  txt.setAttribute('font-family', 'var(--font-sans)');
+  txt.setAttribute('pointer-events', 'none');
+  txt.textContent = gua.name;
+  labelsG.appendChild(txt);
+
+  const dirR = R - 10;
+  const [dx, dy] = polarToCart(gua.angle, dirR - 4);
+  const dirTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  dirTxt.setAttribute('x', dx); dirTxt.setAttribute('y', dy);
+  dirTxt.setAttribute('text-anchor', 'middle');
+  dirTxt.setAttribute('dominant-baseline', 'central');
+  dirTxt.setAttribute('font-size', '9');
+  dirTxt.setAttribute('fill', 'var(--color-text-tertiary)');
+  dirTxt.setAttribute('font-family', 'var(--font-sans)');
+  dirTxt.setAttribute('pointer-events', 'none');
+  dirTxt.textContent = gua.dir;
+  labelsG.appendChild(dirTxt);
+});
+
+function selectGua(gua, pathEl) {
+  document.querySelectorAll('.gua-sector').forEach(p => {
+    p.setAttribute('fill', 'var(--color-background-secondary)');
+    p.classList.remove('active-sector');
+  });
+  pathEl.setAttribute('fill', 'var(--active-bg)');
+  pathEl.setAttribute('stroke', 'var(--active-border)');
+  pathEl.classList.add('active-sector');
+
+  const yaoHtml = gua.yao.map(y =>
+    `<div class="yao ${y===0?'yin':''}"></div>`
+  ).join('');
+
+  const tagsHtml = gua.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  document.getElementById('bagua-info').innerHTML = `
+    <h3>${gua.name}卦 · ${gua.nature}</h3>
+    <div class="gua-char">${gua.char}</div>
+    <div class="yao-row">${yaoHtml}</div>
+    <div class="meta">方位</div><div class="val">${gua.dir} · 五行${gua.wuxing} · ${gua.symbol}</div>
+    <div class="meta">系统编号</div><div class="val">${gua.sysRole}</div>
+    <div class="meta">特质</div><div style="margin:4px 0 8px">${tagsHtml}</div>
+    <div class="meta">卦义</div>
+    <div class="val" style="font-size:13px;line-height:1.6;color:var(--color-text-secondary)">${gua.desc}</div>
+  `;
+}
+</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>易数 · 原型目录</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+      background: #F1EFE8; color: #2C2C2A;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .card {
+      max-width: 480px; width: 100%;
+      background: #FAF9F5; border: 1px solid rgba(44,44,42,.08);
+      border-radius: 12px; padding: 28px 24px;
+    }
+    h1 { font-size: 20px; font-weight: 500; margin: 0 0 8px; }
+    p { font-size: 14px; color: #5F5E5A; margin: 0 0 20px; line-height: 1.6; }
+    ul { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    a {
+      display: block; padding: 12px 14px; border-radius: 8px;
+      background: #F1EFE8; color: #534AB7; text-decoration: none; font-size: 14px;
+      border: 1px solid rgba(44,44,42,.08);
+    }
+    a:hover { background: #EEEDFE; }
+    .main { background: #2C2C2A; color: #F1EFE8; text-align: center; font-weight: 500; }
+    .main:hover { background: #3d3d3a; color: #F1EFE8; }
+    .assets { margin-top: 16px; font-size: 12px; color: #9C9A92; }
+    .assets img { max-width: 100%; border-radius: 8px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>易数 · 设计原型</h1>
+    <p>静态 HTML 原型页，与主应用（Vite 热更新）同端口托管。</p>
+    <ul>
+      <li><a class="main" href="/">▶ 主应用（I Ching Oracle）</a></li>
+      <li><a href="iching_full_ui_flow.html">UI 全流程线框（P1–P7）</a></li>
+      <li><a href="question_framework_design.html">问题框架设计</a></li>
+      <li><a href="xiantian_bagua_interactive.html">先天八卦交互</a></li>
+    </ul>
+    <div class="assets">
+      文王贴纸素材：
+      <br><img src="../assets/文王一.png" alt="文王贴纸 1" width="320">
+    </div>
+  </div>
+</body>
+</html>

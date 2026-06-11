@@ -1,0 +1,37 @@
+<!-- 模板片段：每个原型页 head 共用 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --color-text-primary: #2C2C2A;
+    --color-text-secondary: #5F5E5A;
+    --color-text-tertiary: #9C9A92;
+    --color-text-info: #378ADD;
+    --color-background-primary: #F1EFE8;
+    --color-background-secondary: #FAF9F5;
+    --color-border-tertiary: rgba(44, 44, 42, 0.08);
+    --color-border-secondary: rgba(44, 44, 42, 0.15);
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+  }
+  .proto-nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding: 10px 16px;
+    background: rgba(241, 239, 232, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border-tertiary);
+    font-size: 13px;
+  }
+  .proto-nav a { color: #534AB7; text-decoration: none; }
+  .proto-nav a:hover { text-decoration: underline; }
+  .proto-nav .sep { color: var(--color-text-tertiary); }
+  .proto-wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; }
+</style>

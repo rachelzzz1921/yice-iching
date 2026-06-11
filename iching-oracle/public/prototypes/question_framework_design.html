@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<title>问题框架设计</title>
+<!-- 模板片段：每个原型页 head 共用 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --color-text-primary: #2C2C2A;
+    --color-text-secondary: #5F5E5A;
+    --color-text-tertiary: #9C9A92;
+    --color-text-info: #378ADD;
+    --color-background-primary: #F1EFE8;
+    --color-background-secondary: #FAF9F5;
+    --color-border-tertiary: rgba(44, 44, 42, 0.08);
+    --color-border-secondary: rgba(44, 44, 42, 0.15);
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+  }
+  .proto-nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding: 10px 16px;
+    background: rgba(241, 239, 232, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border-tertiary);
+    font-size: 13px;
+  }
+  .proto-nav a { color: #534AB7; text-decoration: none; }
+  .proto-nav a:hover { text-decoration: underline; }
+  .proto-nav .sep { color: var(--color-text-tertiary); }
+  .proto-wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; }
+</style>
+
+</head>
+<body>
+<nav class="proto-nav">
+  <a href="index.html">← 原型目录</a>
+  <span class="sep">·</span>
+  <a href="/">主应用</a>
+  <span class="sep">·</span>
+  <strong>问题框架设计</strong>
+</nav>
+<div class="proto-wrap">
+
+<style>
+  .qf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 0; }
+  @media (max-width: 500px) { .qf-grid { grid-template-columns: 1fr; } }
+  .qf-card {
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 18px;
+    background: var(--color-background-secondary);
+  }
+  .qf-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .qf-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-purple { background: #7F77DD; }
+  .dot-coral { background: #D85A30; }
+  .dot-teal { background: #1D9E75; }
+  .dot-amber { background: #BA7517; }
+  .qf-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .qf-sub { font-size: 12px; color: var(--color-text-tertiary); margin-left: auto; }
+  .dim-label { font-size: 11px; color: var(--color-text-tertiary); margin: 10px 0 6px; letter-spacing: 0.03em; }
+  .dim-list { display: flex; flex-direction: column; gap: 5px; }
+  .dim-item {
+    font-size: 12px; color: var(--color-text-secondary);
+    padding: 5px 10px;
+    background: var(--color-background-primary);
+    border-radius: 6px;
+    border: 1px solid var(--color-border-tertiary);
+    line-height: 1.4;
+  }
+  .dim-item strong { color: var(--color-text-primary); font-weight: 500; }
+  .q-examples { margin-top: 12px; }
+  .q-pill {
+    display: inline-block; font-size: 11px;
+    padding: 3px 8px; margin: 2px 2px 0 0;
+    border-radius: 20px;
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-tertiary);
+  }
+</style>
+
+<div class="qf-grid">
+
+  <div class="qf-card">
+    <div class="qf-card-header">
+      <div class="qf-dot dot-purple"></div>
+      <span class="qf-title">事业</span>
+      <span class="qf-sub">Career</span>
+    </div>
+    <div class="dim-label">解读维度</div>
+    <div class="dim-list">
+      <div class="dim-item"><strong>时机</strong> · 现在适合出手吗</div>
+      <div class="dim-item"><strong>阻力</strong> · 有什么隐患和对手</div>
+      <div class="dim-item"><strong>建议</strong> · 当前最优策略</div>
+      <div class="dim-item"><strong>结果</strong> · 大方向如何</div>
+    </div>
+    <div class="q-examples">
+      <div class="dim-label">题目样本</div>
+      <span class="q-pill">这份工作该不该辞</span>
+      <span class="q-pill">创业时机是否成熟</span>
+      <span class="q-pill">这个合作对象可信吗</span>
+      <span class="q-pill">升职机会能否把握住</span>
+      <span class="q-pill">项目要不要继续推进</span>
+    </div>
+  </div>
+
+  <div class="qf-card">
+    <div class="qf-card-header">
+      <div class="qf-dot dot-coral"></div>
+      <span class="qf-title">感情</span>
+      <span class="qf-sub">Relationship</span>
+    </div>
+    <div class="dim-label">解读维度</div>
+    <div class="dim-list">
+      <div class="dim-item"><strong>缘分</strong> · 两人磁场相合吗</div>
+      <div class="dim-item"><strong>现状</strong> · 对方真实心意</div>
+      <div class="dim-item"><strong>障碍</strong> · 阻碍在哪里</div>
+      <div class="dim-item"><strong>走向</strong> · 关系会如何发展</div>
+    </div>
+    <div class="q-examples">
+      <div class="dim-label">题目样本</div>
+      <span class="q-pill">他/她对我有意吗</span>
+      <span class="q-pill">这段感情还有未来吗</span>
+      <span class="q-pill">要不要主动表白</span>
+      <span class="q-pill">分手后还能复合吗</span>
+      <span class="q-pill">婚姻是否合适</span>
+    </div>
+  </div>
+
+  <div class="qf-card">
+    <div class="qf-card-header">
+      <div class="qf-dot dot-teal"></div>
+      <span class="qf-title">决策</span>
+      <span class="qf-sub">Decision</span>
+    </div>
+    <div class="dim-label">解读维度</div>
+    <div class="dim-list">
+      <div class="dim-item"><strong>选项A</strong> · 此路利弊</div>
+      <div class="dim-item"><strong>选项B</strong> · 彼路利弊</div>
+      <div class="dim-item"><strong>关键因素</strong> · 影响结果的核心变量</div>
+      <div class="dim-item"><strong>卦建议</strong> · 卦象倾向哪一边</div>
+    </div>
+    <div class="q-examples">
+      <div class="dim-label">题目样本</div>
+      <span class="q-pill">去还是留</span>
+      <span class="q-pill">买还是等</span>
+      <span class="q-pill">两个offer如何选</span>
+      <span class="q-pill">要不要移居外地</span>
+      <span class="q-pill">现在适合投资吗</span>
+    </div>
+  </div>
+
+  <div class="qf-card">
+    <div class="qf-card-header">
+      <div class="qf-dot dot-amber"></div>
+      <span class="qf-title">健康</span>
+      <span class="qf-sub">Wellbeing</span>
+    </div>
+    <div class="dim-label">解读维度</div>
+    <div class="dim-list">
+      <div class="dim-item"><strong>五行</strong> · 卦对应的身体区域</div>
+      <div class="dim-item"><strong>调养</strong> · 当下宜补宜泄</div>
+      <div class="dim-item"><strong>注意</strong> · 需要警惕的方向</div>
+      <div class="dim-item"><strong>时运</strong> · 恢复或变化的节点</div>
+    </div>
+    <div class="q-examples">
+      <div class="dim-label">题目样本</div>
+      <span class="q-pill">近期身体状态如何</span>
+      <span class="q-pill">这个手术时机合适吗</span>
+      <span class="q-pill">焦虑状态何时好转</span>
+      <span class="q-pill">慢性病调养方向</span>
+      <span class="q-pill">整体运势与健康</span>
+    </div>
+  </div>
+
+</div>
+
+</div>
+</body>
+</html>

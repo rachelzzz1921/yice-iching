@@ -1,0 +1,8 @@
+{
+  "entries": [],
+  "_meta": {
+    "version": "2",
+    "description": "C3 · 变卦转化语，键 fromId-toId-category，多 variantId",
+    "note": "禁止与 transition-blacklist.txt 重复"
+  }
+}

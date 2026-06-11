@@ -1,0 +1,9 @@
+{
+  "entries": [],
+  "_meta": {
+    "version": "2",
+    "description": "C5 · 全篇解读范例，key=本卦|变卦|category|动爻",
+    "targetCount": 80,
+    "keyFormat": "鼎|乾|career|3 或 屯||family|1"
+  }
+}
