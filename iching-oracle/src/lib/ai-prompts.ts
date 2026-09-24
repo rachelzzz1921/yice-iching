@@ -315,7 +315,6 @@ export function buildFollowUpSessionContext(
   ctx: InterpretContextPayload,
 ): string {
   const label = CATEGORY_LABEL[req.category];
-  const corpusFacts = req.facts ? factsToPromptJson(req.facts) : contextToPromptJson(ctx);
   const benGua = getGuaciByName(req.benName);
   const bianGua = req.bianName ? getGuaciByName(req.bianName) : null;
   const corpusLayers =
@@ -341,9 +340,6 @@ export function buildFollowUpSessionContext(
 
 ${formatHexFactsBrief(ctx)}
 ${corpusLayers ? `\n${corpusLayers}\n` : ""}
-语料库事实 JSON（权威，不可改写）：
-${corpusFacts}
-
 解读收束（仅对齐结论，勿复述全文）：
 ${headlineOnly}`;
 }
@@ -367,27 +363,35 @@ export function buildFollowUpMessages(
   const { buildFollowUpPrompt } = resolveFollowUpConfig(req.persona);
   const intent = detectIntent(req.userMessage);
   const intentHint = intentToPromptHint(intent);
+  const isMaster = req.persona !== "analyst";
 
+  // compact：去掉 few-shot 长语料，把输入从 ~2k tokens 压到几百，避免偶发超时「自己断掉」
   const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
     {
       role: "system",
       content: `${buildFollowUpPrompt({
         category: req.category,
         userMessage: req.userMessage,
+        compact: true,
       })}${intentHint ? `\n\n${intentHint}` : ""}`,
     },
     {
       role: "user",
-      content: `${session}\n\n我会在这一卦下继续追问。请记住：每次只答我问的那一句，贴题、具体。`,
+      content: isMaster
+        ? `${session}\n\n我会在这一卦下继续追问。请记住：每次只答我问的那一句；必须保持大师解惑的半文半白气口，先断其象，再点卦中事实，末了给一法或一兆。不得滑成现代分析、咨询建议或客服口吻。`
+        : `${session}\n\n我会在这一卦下继续追问。请记住：每次只答我问的那一句，贴题、具体。`,
     },
     {
       role: "assistant",
-      content: "明白。你问什么我就先答什么，结合这次卦象和你的原问题，尽量说到你能马上做的一步。",
+      content: isMaster
+        ? "明白。此卦在前，你再问，我便只就卦中所见答你一句：先断其象，再点你可行的一步。"
+        : "明白。你问什么我就先答什么，结合这次卦象和你的原问题，尽量说到你能马上做的一步。",
     },
   ];
 
-  for (const m of req.history.slice(-6)) {
-    messages.push({ role: m.role, content: m.content });
+  for (const m of req.history.slice(-4)) {
+    const content = m.content.length > 400 ? `${m.content.slice(0, 400)}…` : m.content;
+    messages.push({ role: m.role, content });
   }
 
   messages.push({ role: "user", content: req.userMessage.trim() });

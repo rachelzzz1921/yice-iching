@@ -24,7 +24,7 @@ function buildFollowUpCacheKey(input) {
     .slice(-6)
     .map((m) => `${m.role}:${String(m.content).slice(0, 120)}`)
     .join('|')
-  return `fu:v1:${hashKey([
+  return `fu:v4:${hashKey([
     input.category,
     input.benName,
     input.bianName || '',

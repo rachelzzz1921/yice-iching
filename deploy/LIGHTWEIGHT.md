@@ -4,7 +4,7 @@
 
 - 已购买 **轻量应用服务器**（1 台）
 - 本机已构建好（`deploy.sh` 会自动 build）
-- **智谱 API Key（可选）**：https://open.bigmodel.cn/ — 仅润色分析段；不配也能用本地解读
+- **阶跃星辰 API Key（可选）**：https://platform.stepfun.com/ — 仅润色分析段；不配也能用本地解读
 
 ## 第 1 步：绑定 SSH 公钥（只需做一次）
 
@@ -33,7 +33,7 @@ cp deploy/.env.prod.example deploy/.env.prod
 # 编辑 deploy/.env.prod：
 #   - POSTGRES_PASSWORD / JWT_SECRET / ADMIN_KEY 改为随机长字符串
 #   - CORS_ORIGIN 改成 http://你的公网IP
-#   - （可选）ZHIPU_API_KEY=你的智谱 Key，启用 AI 润色
+#   - （可选）STEP_API_KEY=你的阶跃星辰 Key，启用 AI 润色
 ```
 
 ## 第 4 步：一键部署

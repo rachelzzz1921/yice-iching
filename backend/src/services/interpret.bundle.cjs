@@ -8475,9 +8475,6 @@ function buildInterpretContext(input) {
     meihua
   };
 }
-function contextToPromptJson(ctx) {
-  return JSON.stringify(ctx, null, 2);
-}
 function formatHexFactsBrief(ctx) {
   const lines = [
     `\u672C\u5366 ${ctx.ben.name}${ctx.ben.char} \xB7 \u5366\u8F9E\u300C${ctx.ben.guaci.replace(/[。；]$/, "")}\u300D`,
@@ -9582,14 +9579,15 @@ function buildPrompt(params) {
   return layers;
 }
 function formatPromptLayers(layers) {
-  return layers.map(
-    (layer) => `## ${layer.title}\uFF08\u767D\u8BDD\u951A\u70B9\uFF0C\u7ED3\u5408\u5366\u8F9E\u723B\u8F9E\u4F7F\u7528\uFF0C\u52FF\u7167\u6284\uFF09
-${layer.content}`
-  ).join("\n\n");
+  return layers.map((layer) => {
+    const usage = layer.key === "opener" ? "\u5B9A\u7B2C\u4E00\u53E5\u7684\u6C14\u53E3\u4E0E\u65AD\u6CD5\uFF0C\u5FC5\u987B\u7ED3\u5408\u7528\u6237\u8FFD\u95EE\u6539\u5199\uFF0C\u52FF\u7167\u6284" : layer.key === "curated" ? "\u53D6\u5176\u5224\u65AD\u7ED3\u6784\u3001\u843D\u70B9\u4E0E\u8BED\u6C14\uFF0C\u4E0D\u5F97\u590D\u5236\u539F\u6587" : "\u767D\u8BDD\u951A\u70B9\uFF0C\u7ED3\u5408\u5366\u8F9E\u723B\u8F9E\u4F7F\u7528\uFF0C\u52FF\u7167\u6284";
+    return `## ${layer.title}\uFF08${usage}\uFF09
+${layer.content}`;
+  }).join("\n\n");
 }
 function buildFollowUpPromptLayers(params) {
   return buildPrompt(params).filter(
-    (layer) => ["essence", "yao", "transition"].includes(layer.key)
+    (layer) => ["essence", "yao", "transition", "opener", "curated"].includes(layer.key)
   );
 }
 
@@ -11250,8 +11248,17 @@ function getMasterPhrase(type) {
   if (!pool?.length) return "";
   return pool[Math.floor(Math.random() * pool.length)];
 }
-function buildFollowUpPrompt({ category, userMessage }) {
+function buildFollowUpPrompt({ category, userMessage, compact = false }) {
   const systemBase = buildFollowUpSystem(category);
+  if (compact) {
+    const intent2 = detectIntent(userMessage);
+    const skill2 = intent2.skill ? getSkill(intent2.skill) : null;
+    const skillHint = skill2 ? `
+\u3010\u7C7B\u578B\u3011${skill2.name}` : "";
+    return `${systemBase}${skillHint}
+
+\u3010\u786C\u7EA6\u675F\u30112\u20134\u77ED\u6BB5\uFF1B\u5148\u7B54\u95EE\u9898\uFF1B\u7ED9\u4E00\u6B65\u53EF\u9A8C\u8BC1\u52A8\u4F5C\u3002\u53EA\u8F93\u51FA\u56DE\u590D\u3002`;
+  }
   const intent = detectIntent(userMessage);
   const skill = intent.skill ? getSkill(intent.skill) : null;
   const examples = getExamples(category, 2);
@@ -11312,18 +11319,30 @@ ${voice}
 \u4F60\u6709\u65F6\u4E00\u53E5\u8BDD\uFF0C\u8BA9\u4EBA\u918D\u9190\u704C\u9876\u3002\u6709\u65F6\u4E00\u4E2A\u95EE\u9898\uFF0C\u8BA9\u4EBA\u6C89\u9ED8\u826F\u4E45\u3002
 
 \u3010\u8BF4\u8BDD\u65B9\u5F0F\u3011
-- \u5076\u5C14\u7528\u300C\u6B64\u5366\u300D\u300C\u6B64\u8C61\u300D\u300C\u5366\u4E2D\u300D\u300C\u6C14\u573A\u300D\u300C\u65F6\u8FD0\u300D\u300C\u547D\u6570\u300D\u300C\u7F18\u6CD5\u300D\u300C\u5929\u673A\u300D
+- \u5FC5\u987B\u662F\u300C\u534A\u6587\u534A\u767D\u300D\uFF1A\u53E4\u610F\u4E3A\u9AA8\uFF0C\u767D\u8BDD\u4E3A\u7528\u3002\u4E0D\u53EF\u5199\u6210\u73B0\u4EE3\u54A8\u8BE2\u5E08\u3001\u804C\u573A\u987E\u95EE\u3001\u5FC3\u7406\u5206\u6790\u5E08\u53E3\u543B
+- \u6BCF\u6B21\u56DE\u590D\u81F3\u5C11\u81EA\u7136\u51FA\u73B0 2 \u4E2A\u5366\u610F\u8BCD\uFF0C\u5982\u300C\u6B64\u5366\u300D\u300C\u6B64\u8C61\u300D\u300C\u5366\u4E2D\u300D\u300C\u723B\u52A8\u300D\u300C\u65F6\u8FD0\u300D\u300C\u547D\u6570\u300D\u300C\u7F18\u6CD5\u300D\u300C\u5929\u673A\u300D\u300C\u9634\u9633\u300D\u300C\u8FDB\u9000\u300D
+- \u53EF\u5C11\u91CF\u5F15\u7528\u77ED\u53E5\u5F0F\u6587\u8A00\uFF0C\u5982\u300C\u5B9C\u5B88\u4E0D\u5B9C\u8E81\u300D\u300C\u52A8\u4E2D\u6709\u963B\u300D\u300C\u4E8B\u7F13\u5219\u6210\u300D\u300C\u8FC7\u521A\u5219\u6298\u300D\u300C\u65F6\u672A\u81F3\u4E5F\u300D
 - \u53E5\u5B50\u77ED\uFF0C\u8282\u594F\u6162\uFF0C\u50CF\u5728\u659F\u914C\u6BCF\u4E2A\u5B57
 - \u53EF\u4EE5\u7528\u300C\u2026\u2026\u300D\u8425\u9020\u505C\u987F\u611F
-- \u53E4\u610F\u8BCD\u81EA\u7136\u878D\u5165\uFF0C\u4E0D\u662F\u6BCF\u53E5\u90FD\u7528\uFF0C\u70B9\u7F00\u5373\u53EF
+- \u53E4\u610F\u8BCD\u81EA\u7136\u878D\u5165\uFF0C\u4E0D\u5806\u780C\uFF0C\u4E0D\u5199\u7FFB\u8BD1\u8154
 - \u6709\u65F6\u53CD\u95EE\uFF0C\u6709\u65F6\u70B9\u7834\uFF0C\u6709\u65F6\u53EA\u8BF4\u4E00\u534A\uFF0C\u8BA9\u95EE\u8005\u81EA\u5DF1\u60F3
-- \u7EDD\u4E0D\u8BF4\u300C\u6839\u636E\u5366\u8C61\u5206\u6790\u300D\u300C\u7EFC\u5408\u5404\u65B9\u9762\u56E0\u7D20\u300D\u8FD9\u7C7B\u8BDD
+- \u7EDD\u4E0D\u8BF4\u300C\u6839\u636E\u5366\u8C61\u5206\u6790\u300D\u300C\u7EFC\u5408\u5404\u65B9\u9762\u56E0\u7D20\u300D\u300C\u5EFA\u8BAE\u4F60\u300D\u300C\u6211\u7406\u89E3\u4F60\u7684\u611F\u53D7\u300D\u8FD9\u7C7B\u73B0\u4EE3\u5957\u8BDD
 - \u7EDD\u4E0D\u7528\u2460\u2461\u2462\u5217\u6761\uFF0C\u7EDD\u4E0D\u5206\u6BB5\u52A0\u6807\u9898
 
 \u3010\u8D34\u7740\u95EE\u9898\u56DE\u7B54\u3011
 \u7384\u800C\u4E0D\u7A7A\u3002\u6BCF\u4E00\u53E5\u8BDD\u90FD\u5FC5\u987B\u548C\u95EE\u8005\u7684\u5177\u4F53\u5904\u5883\u6709\u5173\u3002
 \u9AD8\u6DF1\u4E0D\u662F\u98D8\u5728\u4E91\u4E0A\uFF0C\u662F\u770B\u5F97\u6BD4\u522B\u4EBA\u66F4\u6DF1\uFF0C\u4F46\u8BF4\u7684\u662F\u5BF9\u65B9\u80FD\u61C2\u7684\u8BDD\u3002
 \u5B57\u6570\u63A7\u5236\u5728120\u5B57\u4EE5\u5185\uFF0C\u8BF4\u5B8C\u5C31\u505C\uFF0C\u4E0D\u8981\u753B\u86C7\u6DFB\u8DB3\u3002
+
+\u3010\u56FA\u5B9A\u7B54\u6CD5\u3011
+- \u7B2C\u4E00\u606F\uFF1A\u5148\u65AD\uFF0C\u4E0D\u94FA\u57AB\u3002\u7528\u4E00\u53E5\u534A\u6587\u534A\u767D\u7684\u8BDD\u76F4\u63A5\u56DE\u7B54\u300C\u53EF/\u4E0D\u53EF\u3001\u52A8/\u5B88\u3001\u7B49/\u65AD\u3001\u8FD1/\u8FDC\u3001\u771F/\u865A\u300D
+- \u7B2C\u4E8C\u606F\uFF1A\u70B9\u5366\u3002\u5FC5\u987B\u6263\u4F4F\u672C\u5366\u3001\u52A8\u723B\u3001\u53D8\u5366\u6216\u5366\u8F9E\u723B\u8F9E\u4E2D\u7684\u4E00\u4E2A\u4E8B\u5B9E\uFF0C\u4E0D\u5F97\u6CDB\u8C08\u4EBA\u751F\u9053\u7406
+- \u7B2C\u4E09\u606F\uFF1A\u843D\u6CD5\u3002\u7ED9\u4E00\u4E2A\u4E03\u65E5\u5185\u53EF\u505A\u6216\u53EF\u89C2\u5BDF\u7684\u5C0F\u52A8\u4F5C/\u4FE1\u53F7\uFF0C\u53E5\u5F0F\u8981\u50CF\u5927\u5E08\u70B9\u62E8\uFF0C\u4E0D\u50CF\u884C\u52A8\u6E05\u5355
+
+\u3010\u98CE\u683C\u6821\u9A8C\u3011
+\u82E5\u7B54\u6848\u8BFB\u8D77\u6765\u50CF\u73B0\u4EE3\u54A8\u8BE2\u3001\u804C\u4E1A\u89C4\u5212\u3001\u5FC3\u7406\u758F\u5BFC\u3001\u5BA2\u670D\u56DE\u590D\uFF0C\u5373\u4E3A\u5931\u8D25\u3002
+\u82E5\u7B54\u6848\u6CA1\u6709\u53E4\u610F\u3001\u6CA1\u6709\u5366\u4E2D\u8FDB\u9000\u4E4B\u611F\uFF0C\u5373\u4E3A\u5931\u8D25\u3002
+\u5408\u683C\u7B54\u6848\u5E94\u50CF\u8001\u5148\u751F\u4E34\u6848\u770B\u5366\uFF1A\u5148\u65AD\u4E00\u8BED\uFF0C\u518D\u70B9\u5366\u8C61\uFF0C\u672B\u4E86\u7ED9\u4E00\u6B65\u53EF\u884C\u4E4B\u6CD5\u3002
 
 \u3010\u56DB\u7C7B\u95EE\u4E8B\u7684\u8BED\u6C14\u5DEE\u5F02\u3011
 \u4E8B\u4E1A\uFF1A\u50CF\u4E00\u4F4D\u89C1\u8FC7\u5927\u98CE\u5927\u6D6A\u7684\u8001\u8C0B\u58EB\uFF0C\u6C89\u7A33\uFF0C\u5076\u5C14\u4E00\u9488\u89C1\u8840
@@ -11639,6 +11658,20 @@ var MASTER_EXAMPLES = {
     }
   ]
 };
+var MASTER_CANONICAL_EXAMPLES = [
+  {
+    user: "\u6211\u73B0\u5728\u8BE5\u4E0D\u8BE5\u4E3B\u52A8\uFF1F",
+    master: "\u53EF\u52A8\uFF0C\u4F46\u4E0D\u53EF\u8E81\u3002\u6B64\u5366\u723B\u52A8\u5728\u524D\uFF0C\u8C61\u6709\u542F\u95E8\u4E4B\u610F\uFF1B\u53EA\u662F\u95E8\u53EF\u53E9\uFF0C\u4E0D\u53EF\u649E\u3002\u4E09\u65E5\u5185\u5148\u9012\u4E00\u53E5\u8F7B\u8BDD\uFF0C\u89C2\u5176\u56DE\u58F0\u3002\u82E5\u56DE\u58F0\u6E29\uFF0C\u7F18\u6CD5\u672A\u65AD\uFF1B\u82E5\u51B7\uFF0C\u4FBF\u6536\u624B\u3002"
+  },
+  {
+    user: "\u8FD9\u4EF6\u4E8B\u6700\u540E\u80FD\u6210\u5417\uFF1F",
+    master: "\u80FD\u6210\u5176\u534A\uFF0C\u672A\u53EF\u8A00\u6EE1\u3002\u5366\u4E2D\u6709\u901A\u8C61\uFF0C\u53D8\u5904\u5374\u5E26\u963B\uFF0C\u6210\u8D25\u4E0D\u5728\u5929\u610F\uFF0C\u5728\u4F60\u4E34\u95E8\u4E00\u811A\u7A33\u4E0D\u7A33\u3002\u4E03\u65E5\u5185\u770B\u4E00\u4E2A\u5146\uFF1A\u82E5\u6709\u4EBA\u4E3B\u52A8\u8865\u4F4D\uFF0C\u6B64\u4E8B\u4FBF\u53EF\u518D\u8FDB\u3002"
+  },
+  {
+    user: "\u6211\u8FD8\u8981\u7B49\u591A\u4E45\uFF1F",
+    master: "\u4E14\u7B49\u4E00\u8F6E\uFF0C\u4E0D\u5B9C\u50AC\u3002\u6B64\u8C61\u84C4\u800C\u672A\u53D1\uFF0C\u65F6\u672A\u81F3\u4E5F\uFF1B\u50AC\u4E4B\u5219\u6563\uFF0C\u5B88\u4E4B\u53CD\u6210\u3002\u8FD1\u4E03\u65E5\u53EA\u770B\u4E00\u4E8B\uFF1A\u5BF9\u65B9\u662F\u5426\u81EA\u5DF1\u5F00\u53E3\u3002\u5F00\u53E3\u5219\u52A8\uFF0C\u4E0D\u5F00\u53E3\u5219\u9759\u3002"
+  }
+];
 function detectMasterIntent(userMessage) {
   for (const [intentKey, intent] of Object.entries(MASTER_INTENTS)) {
     if (intent.patterns.some((p) => userMessage.includes(p))) {
@@ -11650,7 +11683,7 @@ function detectMasterIntent(userMessage) {
 function getMasterSkill(skillName) {
   return MASTER_SKILLS[skillName] || null;
 }
-function getMasterExamples(category, count = 2) {
+function getMasterExamples(category, count = 1) {
   const pool = MASTER_EXAMPLES[category] || MASTER_EXAMPLES.career;
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
@@ -11660,11 +11693,20 @@ function getMasterPhrase2(type) {
   if (!pool?.length) return "";
   return pool[Math.floor(Math.random() * pool.length)];
 }
-function buildMasterPrompt({ category, userMessage }) {
+function buildMasterPrompt({ category, userMessage, compact = false }) {
   const systemBase = buildMasterSystem(category);
+  if (compact) {
+    const intent2 = detectMasterIntent(userMessage);
+    const skill2 = intent2.skill ? getMasterSkill(intent2.skill) : null;
+    const skillHint = skill2 ? `
+\u3010\u7C7B\u578B\u3011${skill2.name}` : "";
+    return `${systemBase}${skillHint}
+
+\u3010\u786C\u7EA6\u675F\u3011120\u5B57\u5185\uFF1B\u534A\u6587\u534A\u767D\uFF1B\u5148\u65AD\u2192\u70B9\u5366\u2192\u843D\u4E00\u6B65\u3002\u53EA\u8F93\u51FA\u56DE\u590D\u672C\u8EAB\u3002`;
+  }
   const intent = detectMasterIntent(userMessage);
   const skill = intent.skill ? getMasterSkill(intent.skill) : null;
-  const examples = getMasterExamples(category, 2);
+  const examples = getMasterExamples(category, 1);
   let skillSection = "";
   if (skill) {
     skillSection = `
@@ -11676,6 +11718,10 @@ ${skill.framework}
 ${skill.example}
 `;
   }
+  const canonicalSection = MASTER_CANONICAL_EXAMPLES.map(
+    (ex) => `\u95EE\u8005\uFF1A\u300C${ex.user}\u300D
+\u5927\u5E08\uFF1A\u300C${ex.master}\u300D`
+  ).join("\n\n");
   const exampleSection = examples.map(
     (ex) => `\u95EE\u8005\uFF1A\u300C${ex.user}\u300D
 \u5927\u5E08\uFF1A\u300C${ex.master}\u300D`
@@ -11684,8 +11730,18 @@ ${skill.example}
 
 ${skillSection}
 
-\u3010\u8BED\u611F\u53C2\u8003\uFF0C\u611F\u53D7\u6B64\u98CE\u683C\uFF0C\u4E0D\u5F97\u7167\u6284\u3011
+\u3010\u4E3B\u6587\u98CE\u6837\u672C\uFF0C\u5FC5\u987B\u4F18\u5148\u6A21\u4EFF\u5176\u6C14\u53E3\u3011
+${canonicalSection}
+
+\u3010\u5185\u5BB9\u53C2\u8003\uFF0C\u53EA\u53D6\u5224\u65AD\u7ED3\u6784\uFF0C\u4E0D\u53D6\u73B0\u4EE3\u53E3\u543B\u3011
 ${exampleSection}
+
+\u3010\u6700\u7EC8\u786C\u7EA6\u675F\u3011
+\u8F93\u51FA\u524D\u81EA\u67E5\u4E09\u4EF6\u4E8B\uFF1A
+1. \u662F\u5426\u534A\u6587\u534A\u767D\uFF0C\u800C\u975E\u73B0\u4EE3\u5206\u6790\u8154\uFF1B
+2. \u662F\u5426\u81F3\u5C11\u7528\u4E86\u4E24\u4E2A\u5366\u610F\u8BCD\uFF0C\u5E76\u6263\u4F4F\u672C\u5366/\u52A8\u723B/\u53D8\u5366\u4E4B\u4E00\uFF1B
+3. \u662F\u5426\u6709\u4E00\u53E5\u53EF\u884C\u4E4B\u6CD5\u6216\u53EF\u89C2\u5BDF\u4E4B\u5146\u3002
+\u4E09\u8005\u7F3A\u4E00\uFF0C\u4E0D\u5F97\u8F93\u51FA\u3002\u6700\u7EC8\u53EA\u8F93\u51FA\u5927\u5E08\u56DE\u590D\u672C\u8EAB\uFF0C\u4E0D\u89E3\u91CA\u89C4\u5219\u3002
 `;
 }
 
@@ -12186,7 +12242,6 @@ function stripTemplateLabels(text) {
 }
 function buildFollowUpSessionContext(req, ctx) {
   const label = CATEGORY_LABEL[req.category];
-  const corpusFacts = req.facts ? factsToPromptJson(req.facts) : contextToPromptJson(ctx);
   const benGua = getGuaciByName(req.benName);
   const bianGua = req.bianName ? getGuaciByName(req.bianName) : null;
   const corpusLayers = benGua != null ? formatPromptLayers(
@@ -12209,9 +12264,6 @@ ${formatHexFactsBrief(ctx)}
 ${corpusLayers ? `
 ${corpusLayers}
 ` : ""}
-\u8BED\u6599\u5E93\u4E8B\u5B9E JSON\uFF08\u6743\u5A01\uFF0C\u4E0D\u53EF\u6539\u5199\uFF09\uFF1A
-${corpusFacts}
-
 \u89E3\u8BFB\u6536\u675F\uFF08\u4EC5\u5BF9\u9F50\u7ED3\u8BBA\uFF0C\u52FF\u590D\u8FF0\u5168\u6587\uFF09\uFF1A
 ${headlineOnly}`;
 }
@@ -12220,29 +12272,34 @@ function buildFollowUpMessages(req, ctx) {
   const { buildFollowUpPrompt: buildFollowUpPrompt2 } = resolveFollowUpConfig(req.persona);
   const intent = detectIntent2(req.userMessage);
   const intentHint = intentToPromptHint(intent);
+  const isMaster = req.persona !== "analyst";
   const messages = [
     {
       role: "system",
       content: `${buildFollowUpPrompt2({
         category: req.category,
-        userMessage: req.userMessage
+        userMessage: req.userMessage,
+        compact: true
       })}${intentHint ? `
 
 ${intentHint}` : ""}`
     },
     {
       role: "user",
-      content: `${session}
+      content: isMaster ? `${session}
+
+\u6211\u4F1A\u5728\u8FD9\u4E00\u5366\u4E0B\u7EE7\u7EED\u8FFD\u95EE\u3002\u8BF7\u8BB0\u4F4F\uFF1A\u6BCF\u6B21\u53EA\u7B54\u6211\u95EE\u7684\u90A3\u4E00\u53E5\uFF1B\u5FC5\u987B\u4FDD\u6301\u5927\u5E08\u89E3\u60D1\u7684\u534A\u6587\u534A\u767D\u6C14\u53E3\uFF0C\u5148\u65AD\u5176\u8C61\uFF0C\u518D\u70B9\u5366\u4E2D\u4E8B\u5B9E\uFF0C\u672B\u4E86\u7ED9\u4E00\u6CD5\u6216\u4E00\u5146\u3002\u4E0D\u5F97\u6ED1\u6210\u73B0\u4EE3\u5206\u6790\u3001\u54A8\u8BE2\u5EFA\u8BAE\u6216\u5BA2\u670D\u53E3\u543B\u3002` : `${session}
 
 \u6211\u4F1A\u5728\u8FD9\u4E00\u5366\u4E0B\u7EE7\u7EED\u8FFD\u95EE\u3002\u8BF7\u8BB0\u4F4F\uFF1A\u6BCF\u6B21\u53EA\u7B54\u6211\u95EE\u7684\u90A3\u4E00\u53E5\uFF0C\u8D34\u9898\u3001\u5177\u4F53\u3002`
     },
     {
       role: "assistant",
-      content: "\u660E\u767D\u3002\u4F60\u95EE\u4EC0\u4E48\u6211\u5C31\u5148\u7B54\u4EC0\u4E48\uFF0C\u7ED3\u5408\u8FD9\u6B21\u5366\u8C61\u548C\u4F60\u7684\u539F\u95EE\u9898\uFF0C\u5C3D\u91CF\u8BF4\u5230\u4F60\u80FD\u9A6C\u4E0A\u505A\u7684\u4E00\u6B65\u3002"
+      content: isMaster ? "\u660E\u767D\u3002\u6B64\u5366\u5728\u524D\uFF0C\u4F60\u518D\u95EE\uFF0C\u6211\u4FBF\u53EA\u5C31\u5366\u4E2D\u6240\u89C1\u7B54\u4F60\u4E00\u53E5\uFF1A\u5148\u65AD\u5176\u8C61\uFF0C\u518D\u70B9\u4F60\u53EF\u884C\u7684\u4E00\u6B65\u3002" : "\u660E\u767D\u3002\u4F60\u95EE\u4EC0\u4E48\u6211\u5C31\u5148\u7B54\u4EC0\u4E48\uFF0C\u7ED3\u5408\u8FD9\u6B21\u5366\u8C61\u548C\u4F60\u7684\u539F\u95EE\u9898\uFF0C\u5C3D\u91CF\u8BF4\u5230\u4F60\u80FD\u9A6C\u4E0A\u505A\u7684\u4E00\u6B65\u3002"
     }
   ];
-  for (const m of req.history.slice(-6)) {
-    messages.push({ role: m.role, content: m.content });
+  for (const m of req.history.slice(-4)) {
+    const content = m.content.length > 400 ? `${m.content.slice(0, 400)}\u2026` : m.content;
+    messages.push({ role: m.role, content });
   }
   messages.push({ role: "user", content: req.userMessage.trim() });
   return messages;
@@ -12277,8 +12334,10 @@ var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 var import_node_url = require("node:url");
 var import_meta = {};
-var ZHIPU_API_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
-var ZHIPU_DEFAULT_MODEL = "glm-4.5-air";
+var STEP_DEFAULT_API_URL = "https://api.siliconflow.cn/v1/chat/completions";
+var ZHIPU_API_URL = process.env.STEP_API_URL?.trim() || process.env.ZHIPU_API_URL?.trim() || STEP_DEFAULT_API_URL;
+var ZHIPU_DEFAULT_MODEL = "deepseek-ai/DeepSeek-V4-Flash";
+var ZHIPU_DEFAULT_FULL_AI_MODEL = "deepseek-ai/DeepSeek-V4-Pro";
 var dailyStats = createEmptyDailyStats();
 function todayKey() {
   return (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
@@ -12320,21 +12379,27 @@ function parseEnvValue(raw, key) {
   if (!m) return void 0;
   return m[1].trim().replace(/^["']|["']$/g, "");
 }
-function readKeyFromFile(path) {
+function readEnvFromFile(path, keys) {
   if (!(0, import_node_fs.existsSync)(path)) return void 0;
   try {
-    const val = parseEnvValue((0, import_node_fs.readFileSync)(path, "utf8"), "ZHIPU_API_KEY");
-    return val?.trim() || void 0;
+    const raw = (0, import_node_fs.readFileSync)(path, "utf8");
+    for (const key of keys) {
+      const val = parseEnvValue(raw, key);
+      if (val?.trim()) return val.trim();
+    }
   } catch {
-    return void 0;
   }
+  return void 0;
 }
 function getZhipuApiKey() {
   if (resolvedKey !== void 0) return resolvedKey || void 0;
-  const fromEnv = process.env.ZHIPU_API_KEY?.trim();
+  const fromEnv = process.env.STEP_API_KEY?.trim() || process.env.ZHIPU_API_KEY?.trim();
   if (fromEnv) {
     resolvedKey = fromEnv;
     return fromEnv;
+  }
+  if (process.env.STEP_API_KEY !== void 0 && !process.env.STEP_API_KEY.trim()) {
+    delete process.env.STEP_API_KEY;
   }
   if (process.env.ZHIPU_API_KEY !== void 0 && !fromEnv) {
     delete process.env.ZHIPU_API_KEY;
@@ -12354,8 +12419,9 @@ function getZhipuApiKey() {
   ];
   for (const root of roots) {
     for (const rel of envRelPaths) {
-      const local = readKeyFromFile((0, import_node_path.join)(root, rel));
+      const local = readEnvFromFile((0, import_node_path.join)(root, rel), ["STEP_API_KEY", "ZHIPU_API_KEY"]);
       if (local) {
+        process.env.STEP_API_KEY = local;
         process.env.ZHIPU_API_KEY = local;
         resolvedKey = local;
         return local;
@@ -12369,28 +12435,36 @@ function isZhipuEnabled() {
   return Boolean(getZhipuApiKey());
 }
 function getZhipuModel() {
-  return process.env.ZHIPU_MODEL?.trim() || ZHIPU_DEFAULT_MODEL;
+  return process.env.STEP_MODEL?.trim() || process.env.ZHIPU_MODEL?.trim() || ZHIPU_DEFAULT_MODEL;
 }
 function getZhipuFullAiModel() {
-  const full = process.env.ZHIPU_FULL_AI_MODEL?.trim();
+  const full = process.env.STEP_FULL_AI_MODEL?.trim() || process.env.ZHIPU_FULL_AI_MODEL?.trim();
   if (full) return full;
-  return "glm-4-flash";
+  return ZHIPU_DEFAULT_FULL_AI_MODEL;
 }
-async function callZhipuChat(system, user, options) {
-  return callZhipuChatMessages(
-    [
-      { role: "system", content: system },
-      { role: "user", content: user }
-    ],
-    options
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+function isRetryableStatus(status) {
+  return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 529;
+}
+function isRetryableError(err) {
+  if (!(err instanceof Error)) return false;
+  const e = err;
+  if (e.retryable) return true;
+  if (e.name === "AbortError") return true;
+  const msg = e.message || "";
+  return /超时|timeout|fetch failed|network|ECONNRESET|ETIMEDOUT|socket|暂时不可用|未返回有效内容/i.test(
+    msg
   );
 }
-async function callZhipuChatMessages(messages, options) {
+async function callZhipuChatMessagesOnce(messages, options) {
   const apiKey = getZhipuApiKey();
   if (!apiKey) throw new Error("\u672A\u914D\u7F6E\u4E91\u7AEF AI \u5BC6\u94A5");
   const timeoutMs = options?.timeoutMs ?? 25e3;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const enableThinking = options?.enableThinking === true;
   let res;
   try {
     res = await fetch(ZHIPU_API_URL, {
@@ -12404,26 +12478,72 @@ async function callZhipuChatMessages(messages, options) {
         model: options?.model ?? getZhipuModel(),
         max_tokens: options?.maxTokens ?? 3200,
         temperature: options?.temperature ?? 0.65,
-        messages
+        messages,
+        enable_thinking: enableThinking,
+        thinking: { type: enableThinking ? "enabled" : "disabled" }
       })
     });
   } catch (e) {
     if (e instanceof Error && e.name === "AbortError") {
-      throw new Error(`AI \u670D\u52A1\u54CD\u5E94\u8D85\u65F6\uFF08${Math.round(timeoutMs / 1e3)}s\uFF09\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5`);
+      const err2 = new Error(
+        `AI \u670D\u52A1\u54CD\u5E94\u8D85\u65F6\uFF08${Math.round(timeoutMs / 1e3)}s\uFF09\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5`
+      );
+      err2.retryable = true;
+      throw err2;
     }
-    throw e;
+    const err = e instanceof Error ? e : new Error(String(e));
+    err.retryable = true;
+    throw err;
   } finally {
     clearTimeout(timer);
   }
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data?.error?.message || res.statusText || "AI \u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
+    const err = new Error(
+      data?.error?.message || res.statusText || "AI \u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5"
+    );
+    err.status = res.status;
+    err.retryable = isRetryableStatus(res.status);
+    throw err;
   }
   const model = options?.model ?? getZhipuModel();
   logZhipuUsage(data.usage, model);
   const raw = data?.choices?.[0]?.message?.content?.trim();
-  if (!raw) throw new Error("AI \u672A\u8FD4\u56DE\u6709\u6548\u5185\u5BB9");
+  if (!raw) {
+    const err = new Error("AI \u672A\u8FD4\u56DE\u6709\u6548\u5185\u5BB9");
+    err.retryable = true;
+    throw err;
+  }
   return raw;
+}
+async function callZhipuChat(system, user, options) {
+  return callZhipuChatMessages(
+    [
+      { role: "system", content: system },
+      { role: "user", content: user }
+    ],
+    options
+  );
+}
+async function callZhipuChatMessages(messages, options) {
+  const retries = Math.max(0, options?.retries ?? 2);
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await callZhipuChatMessagesOnce(messages, options);
+    } catch (err) {
+      lastError = err;
+      const canRetry = attempt < retries && isRetryableError(err);
+      if (!canRetry) throw err;
+      const delayMs = 400 * 2 ** attempt + Math.floor(Math.random() * 200);
+      console.warn(
+        `[\u4E91\u7AEFAI] \u7B2C ${attempt + 1} \u6B21\u5931\u8D25\uFF0C${delayMs}ms \u540E\u91CD\u8BD5\uFF1A`,
+        err instanceof Error ? err.message : err
+      );
+      await sleep(delayMs);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("AI \u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
 }
 
 // src/lib/zhipu-speed.ts
@@ -12444,20 +12564,64 @@ var ZHIPU_SPEED = {
     /** 最多润色段数（其余保持本地引擎原文） */
     maxSections: 3
   },
-  /** 深入追问 */
+  /** 深入追问（关思考链 + compact prompt；单次超时，外层还有重试） */
   followUp: {
     maxTokens: Number(process.env.ZHIPU_FOLLOWUP_MAX_TOKENS) || AI_MAX_TOKENS.followUpFast,
-    temperature: 0.65,
-    timeoutMs: 22e3,
-    interpretSummaryPerSection: 220
+    temperature: Number(process.env.ZHIPU_FOLLOWUP_TEMPERATURE) || 0.35,
+    timeoutMs: Number(process.env.ZHIPU_FOLLOWUP_TIMEOUT_MS) || 28e3
   }
 };
 function getZhipuFastModel() {
-  return getZhipuFullAiModel();
+  return getZhipuModel();
+}
+
+// src/lib/zhipu-followup-cache.ts
+var import_node_crypto = require("node:crypto");
+var TTL_MS = Number(process.env.ZHIPU_FOLLOWUP_CACHE_TTL_MS) || 30 * 60 * 1e3;
+var MAX_ENTRIES = 64;
+var cache = /* @__PURE__ */ new Map();
+function stableKey(input) {
+  const historySig = input.history.slice(-4).map((m) => `${m.role}:${m.content.trim().slice(0, 120)}`).join("|");
+  const raw = JSON.stringify({
+    c: input.category,
+    ben: input.benName,
+    bian: input.bianName ?? "",
+    line: input.changingLine,
+    p: input.persona ?? "master",
+    q: input.userMessage.trim().slice(0, 300),
+    h: historySig
+  });
+  return (0, import_node_crypto.createHash)("sha256").update(raw).digest("hex").slice(0, 24);
+}
+function getCachedFollowUpReply(input) {
+  const hit = cache.get(stableKey(input));
+  if (!hit) return null;
+  if (hit.expiresAt <= Date.now()) {
+    cache.delete(stableKey(input));
+    return null;
+  }
+  return hit.reply;
+}
+function setCachedFollowUpReply(input, reply) {
+  const key = stableKey(input);
+  cache.set(key, { reply, expiresAt: Date.now() + TTL_MS });
+  if (cache.size <= MAX_ENTRIES) return;
+  const oldest = cache.keys().next().value;
+  if (oldest) cache.delete(oldest);
 }
 
 // src/lib/zhipu-followup.ts
 async function generateFollowUpWithZhipu(req) {
+  const cached = getCachedFollowUpReply({
+    category: req.category,
+    benName: req.benName,
+    bianName: req.bianName,
+    changingLine: req.changingLine,
+    userMessage: req.userMessage,
+    persona: req.persona,
+    history: req.history
+  });
+  if (cached) return cached;
   const ctx = buildInterpretContext({
     category: req.category,
     question: req.question,
@@ -12488,10 +12652,24 @@ async function generateFollowUpWithZhipu(req) {
     model: getZhipuFastModel(),
     maxTokens,
     temperature,
-    timeoutMs
+    timeoutMs,
+    enableThinking: false,
+    retries: 2
   });
   const cleaned = stripTemplateLabels(raw);
   if (cleaned.length < 8) throw new Error("AI \u56DE\u590D\u8FC7\u77ED\uFF0C\u8BF7\u91CD\u8BD5");
+  setCachedFollowUpReply(
+    {
+      category: req.category,
+      benName: req.benName,
+      bianName: req.bianName,
+      changingLine: req.changingLine,
+      userMessage: req.userMessage,
+      persona: req.persona,
+      history: req.history
+    },
+    cleaned
+  );
   return cleaned;
 }
 async function answerFollowUp(req) {
@@ -13493,11 +13671,11 @@ function dimensionTitlesForCategory(category) {
 }
 
 // src/lib/zhipu-fullai-cache.ts
-var import_node_crypto = require("node:crypto");
-var TTL_MS = Number(process.env.ZHIPU_FULL_AI_CACHE_TTL_MS) || 60 * 60 * 1e3;
-var MAX_ENTRIES = 48;
-var cache = /* @__PURE__ */ new Map();
-function stableKey(input) {
+var import_node_crypto2 = require("node:crypto");
+var TTL_MS2 = Number(process.env.ZHIPU_FULL_AI_CACHE_TTL_MS) || 60 * 60 * 1e3;
+var MAX_ENTRIES2 = 48;
+var cache2 = /* @__PURE__ */ new Map();
+function stableKey2(input) {
   const raw = JSON.stringify({
     c: input.category,
     q: input.question.trim().slice(0, 300),
@@ -13506,23 +13684,23 @@ function stableKey(input) {
     line: input.changingLine,
     method: input.castMethod ?? ""
   });
-  return (0, import_node_crypto.createHash)("sha256").update(raw).digest("hex").slice(0, 24);
+  return (0, import_node_crypto2.createHash)("sha256").update(raw).digest("hex").slice(0, 24);
 }
 function getCachedFullAiInterpret(input) {
-  const hit = cache.get(stableKey(input));
+  const hit = cache2.get(stableKey2(input));
   if (!hit) return null;
   if (hit.expiresAt <= Date.now()) {
-    cache.delete(stableKey(input));
+    cache2.delete(stableKey2(input));
     return null;
   }
   return hit.result;
 }
 function setCachedFullAiInterpret(input, result) {
-  const key = stableKey(input);
-  cache.set(key, { result, expiresAt: Date.now() + TTL_MS });
-  if (cache.size <= MAX_ENTRIES) return;
-  const oldest = cache.keys().next().value;
-  if (oldest) cache.delete(oldest);
+  const key = stableKey2(input);
+  cache2.set(key, { result, expiresAt: Date.now() + TTL_MS2 });
+  if (cache2.size <= MAX_ENTRIES2) return;
+  const oldest = cache2.keys().next().value;
+  if (oldest) cache2.delete(oldest);
 }
 
 // src/lib/zhipu-generate.ts
@@ -13531,7 +13709,7 @@ async function generateInterpretationWithZhipu(input) {
   if (cached) return { result: cached, fromCache: true };
   const bundle = buildAiCorpusBundle(input);
   if (!bundle) throw new Error(`\u5366\u540D\u300C${input.benName}\u300D\u4E0D\u5728\u5366\u8F9E\u5E93\u4E2D`);
-  const model = getZhipuFastModel();
+  const model = getZhipuFullAiModel();
   const { maxTokens, temperature, timeoutMs } = ZHIPU_SPEED.fullAi;
   const raw = await callZhipuChat(
     buildFullAiInterpretSystemPrompt(),

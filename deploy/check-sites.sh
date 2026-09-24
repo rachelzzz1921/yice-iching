@@ -6,6 +6,7 @@ set -euo pipefail
 
 ICHING_IP="${ICHING_IP:-47.237.68.213}"
 ICHING_HTTPS_HOST="${ICHING_HTTPS_HOST:-yice.47-237-68-213.sslip.io}"
+YINGYAN_HOST="${YINGYAN_HOST:-yingyan.47-237-68-213.sslip.io}"
 LC_HOST="${LC_HOST:-47-237-68-213.sslip.io}"
 
 check() {
@@ -36,6 +37,11 @@ echo ""
 echo "==> LoveCompass (https://${LC_HOST})"
 check "HTTPS 首页" "https://${LC_HOST}/" || failed=1
 check "API health" "https://${LC_HOST}/health" || failed=1
+
+echo ""
+echo "==> 鹰眼 EagleEye (https://${YINGYAN_HOST})"
+check "HTTPS 首页" "https://${YINGYAN_HOST}/" || failed=1
+check "API health" "https://${YINGYAN_HOST}/api/health" || failed=1
 
 echo ""
 if [[ "$failed" -eq 0 ]]; then

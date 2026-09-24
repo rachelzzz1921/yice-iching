@@ -18,7 +18,7 @@ import {
   getCachedFullAiInterpret,
   setCachedFullAiInterpret,
 } from "@/lib/zhipu-fullai-cache";
-import { getZhipuFastModel, ZHIPU_SPEED } from "@/lib/zhipu-speed";
+import { ZHIPU_SPEED } from "@/lib/zhipu-speed";
 import { callZhipuChat, getZhipuFullAiModel, isZhipuEnabled } from "@/lib/zhipu-shared";
 
 export type ZhipuTestBlock = {
@@ -43,7 +43,7 @@ export async function generateInterpretationWithZhipu(
   const bundle = buildAiCorpusBundle(input);
   if (!bundle) throw new Error(`卦名「${input.benName}」不在卦辞库中`);
 
-  const model = getZhipuFastModel();
+  const model = getZhipuFullAiModel();
   const { maxTokens, temperature, timeoutMs } = ZHIPU_SPEED.fullAi;
 
   const raw = await callZhipuChat(

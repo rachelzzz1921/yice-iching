@@ -3,7 +3,7 @@
  */
 
 import { AI_MAX_TOKENS } from "@/lib/ai-prompts";
-import { getZhipuFullAiModel } from "@/lib/zhipu-shared";
+import { getZhipuModel } from "@/lib/zhipu-shared";
 
 export const ZHIPU_SPEED = {
   /** 结果页 · 海外顶级大模型 · P1/P2 四维度 + 断语 */
@@ -22,15 +22,15 @@ export const ZHIPU_SPEED = {
     /** 最多润色段数（其余保持本地引擎原文） */
     maxSections: 3,
   },
-  /** 深入追问 */
+  /** 深入追问（关思考链 + compact prompt；单次超时，外层还有重试） */
   followUp: {
     maxTokens: Number(process.env.ZHIPU_FOLLOWUP_MAX_TOKENS) || AI_MAX_TOKENS.followUpFast,
-    temperature: 0.65,
-    timeoutMs: 22_000,
-    interpretSummaryPerSection: 220,
+    temperature: Number(process.env.ZHIPU_FOLLOWUP_TEMPERATURE) || 0.35,
+    timeoutMs: Number(process.env.ZHIPU_FOLLOWUP_TIMEOUT_MS) || 28_000,
   },
 } as const;
 
+/** 追问 / 润色等交互场景：用 Flash，Pro 留给全量解读 */
 export function getZhipuFastModel(): string {
-  return getZhipuFullAiModel();
+  return getZhipuModel();
 }

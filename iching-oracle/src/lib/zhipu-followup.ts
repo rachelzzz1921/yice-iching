@@ -10,6 +10,10 @@ import type { InterpretFacts } from "@/lib/interpret-facts";
 import type { CastMethod } from "@/lib/profile";
 import { getZhipuFastModel, ZHIPU_SPEED } from "@/lib/zhipu-speed";
 import { callZhipuChatMessages, isZhipuEnabled } from "@/lib/zhipu-shared";
+import {
+  getCachedFollowUpReply,
+  setCachedFollowUpReply,
+} from "@/lib/zhipu-followup-cache";
 
 export type FollowUpChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -36,6 +40,17 @@ export type FollowUpAnswer = {
 };
 
 export async function generateFollowUpWithZhipu(req: FollowUpRequest): Promise<string> {
+  const cached = getCachedFollowUpReply({
+    category: req.category,
+    benName: req.benName,
+    bianName: req.bianName,
+    changingLine: req.changingLine,
+    userMessage: req.userMessage,
+    persona: req.persona,
+    history: req.history,
+  });
+  if (cached) return cached;
+
   const ctx = buildInterpretContext({
     category: req.category,
     question: req.question,
@@ -69,10 +84,24 @@ export async function generateFollowUpWithZhipu(req: FollowUpRequest): Promise<s
     maxTokens,
     temperature,
     timeoutMs,
+    enableThinking: false,
+    retries: 2,
   });
 
   const cleaned = stripTemplateLabels(raw);
   if (cleaned.length < 8) throw new Error("AI 回复过短，请重试");
+  setCachedFollowUpReply(
+    {
+      category: req.category,
+      benName: req.benName,
+      bianName: req.bianName,
+      changingLine: req.changingLine,
+      userMessage: req.userMessage,
+      persona: req.persona,
+      history: req.history,
+    },
+    cleaned,
+  );
   return cleaned;
 }
 

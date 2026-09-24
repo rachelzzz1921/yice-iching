@@ -74,17 +74,22 @@ function buildPrompt(params) {
 
 function formatPromptLayers(layers) {
   return layers
-    .map(
-      (layer) =>
-        `## ${layer.title}（白话锚点，结合卦辞爻辞使用，勿照抄）\n${layer.content}`,
-    )
+    .map((layer) => {
+      const usage =
+        layer.key === 'opener'
+          ? '定第一句的气口与断法，必须结合用户追问改写，勿照抄'
+          : layer.key === 'curated'
+            ? '取其判断结构、落点与语气，不得复制原文'
+            : '白话锚点，结合卦辞爻辞使用，勿照抄'
+      return `## ${layer.title}（${usage}）\n${layer.content}`
+    })
     .join('\n\n')
 }
 
-/** 追问会话：1–3 层（不含开场白与范例） */
+/** 追问语料层：卦性 / 动爻 / 变卦转化 / 定性 / 范例 */
 function buildFollowUpPromptLayers(params) {
   return buildPrompt(params).filter((layer) =>
-    ['essence', 'yao', 'transition'].includes(layer.key),
+    ['essence', 'yao', 'transition', 'opener', 'curated'].includes(layer.key),
   )
 }
 

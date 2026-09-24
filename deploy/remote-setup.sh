@@ -39,7 +39,24 @@ if [[ -f deploy/.env.prod ]]; then
   source deploy/.env.prod
   set +a
 fi
-dc -f docker-compose.prod.yml up -d --build --remove-orphans
+
+# 1G 内存轻量机：构建时若无 swap 会把 SSH/Nginx 一起打挂
+if ! $SUDO swapon --show 2>/dev/null | grep -q .; then
+  echo "==> 启用 2G swap（防止 docker build OOM）..."
+  if [[ ! -f /swapfile ]]; then
+    $SUDO fallocate -l 2G /swapfile 2>/dev/null || $SUDO dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
+    $SUDO chmod 600 /swapfile
+    $SUDO mkswap /swapfile
+  fi
+  $SUDO swapon /swapfile || true
+fi
+
+echo "==> 串行构建镜像（避免前后端并行 npm ci 撑爆内存）..."
+export COMPOSE_PARALLEL_LIMIT=1
+$SUDO docker builder prune -f >/dev/null 2>&1 || true
+dc -f docker-compose.prod.yml build backend
+dc -f docker-compose.prod.yml build frontend
+dc -f docker-compose.prod.yml up -d --remove-orphans --no-build
 
 echo "==> 等待健康检查..."
 sleep 12

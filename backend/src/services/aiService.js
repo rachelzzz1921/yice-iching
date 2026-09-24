@@ -8,7 +8,8 @@ const { detectIntent, intentToPromptHint } = require('../data/intentLibrary')
 const { withTimeout } = require('../lib/timeout')
 
 const INTERPRET_TIMEOUT_MS = Number(process.env.AI_INTERPRET_TIMEOUT_MS) || 120_000
-const FOLLOWUP_TIMEOUT_MS = Number(process.env.AI_FOLLOWUP_TIMEOUT_MS) || 90_000
+/** 追问含最多 2 次瞬时重试，需大于单次 Flash 超时 */
+const FOLLOWUP_TIMEOUT_MS = Number(process.env.AI_FOLLOWUP_TIMEOUT_MS) || 120_000
 
 let interpretBundle = null
 

@@ -33,7 +33,11 @@ export function saveFollowUpPersona(persona: FollowUpPersona): void {
 }
 
 type FollowUpConfigModule = {
-  buildFollowUpPrompt: (args: { category: string; userMessage: string }) => string;
+  buildFollowUpPrompt: (args: {
+    category: string;
+    userMessage: string;
+    compact?: boolean;
+  }) => string;
 };
 
 export function resolveFollowUpConfig(persona?: FollowUpPersona | string | null): FollowUpConfigModule {
